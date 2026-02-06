@@ -1,2 +1,0 @@
-// Environment variables
-module.exports = {};

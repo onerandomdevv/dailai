@@ -5,6 +5,6 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-app.use('/', ussdRoutes);
+app.use('/ussdRoutes', ussdRoutes);
 
 module.exports = app;

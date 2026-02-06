@@ -1,11 +1,16 @@
 const africastalking = require('../config/africastalking');
 const sms = africastalking.SMS;
 
-const sendSMS = async (to, message) => {
+const sendSMS = async (to, message, from = null) => {
   try {
+    // If 'to' is already an array, use it; otherwise wrap it in an array.
+    const recipients = Array.isArray(to) ? to : [to];
+
     const options = {
-      to: [to],
-      message: message
+      to: recipients,
+      message: message,
+      // 'from' is optional (Short Code or Sender ID)
+      ...(from && { from })
     };
     const result = await sms.send(options);
     console.log('SMS sent successfully:', result);
