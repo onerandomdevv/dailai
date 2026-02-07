@@ -9,6 +9,9 @@ exports.handleUSSD = async (req, res) => {
   // Read the variables sent via POST from our API
   const { sessionId, serviceCode, phoneNumber, text } = req.body;
 
+  // Log the full request details (including any potential cost info if sent)
+  console.log('Incoming USSD Request:', JSON.stringify(req.body, null, 2));
+
   let response = "";
 
   // Split the text string to determine the user's "path"

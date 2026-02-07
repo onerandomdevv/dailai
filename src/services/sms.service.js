@@ -13,7 +13,7 @@ const sendSMS = async (to, message, from = null) => {
       ...(from && { from })
     };
     const result = await sms.send(options);
-    console.log('SMS sent successfully:', result);
+    console.log('SMS sent successfully. Result:', JSON.stringify(result, null, 2));
     return result;
   } catch (error) {
     console.error('Error sending SMS:', error);

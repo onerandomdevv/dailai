@@ -25,6 +25,8 @@ AI-powered USSD application using Africa's Talking and Google Gemini.
     AT_USERNAME=your_africastalking_username
     AT_API_KEY=your_africastalking_api_key
     GEMINI_API_KEY=your_gemini_api_key
+    # Optional: Africa's Talking Sender ID (to bypass DND)
+    SMS_SENDER_ID=YourSenderID
     ```
 
 ## Usage
@@ -43,6 +45,6 @@ npm run dev
     `http://<your-ngrok-url>/ussdRoutes`
 3.  Dial your USSD code (e.g., `*347*157#`).
 
-## Testing
-- **Manual Test**: Run `node test/manual_test.js` to simulate USSD flows locally.
-- **Bulk SMS**: Run `node test/bulk_sms_test.js` to test SMS functionality.
+## Deployment
+This project is ready to be deployed to platforms like Heroku, Render, or Railway.
+Ensure you set the environment variables in your deployment dashboard.
