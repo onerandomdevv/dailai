@@ -7,6 +7,27 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+// Root route - API information
+app.get('/', (req, res) => {
+    res.json({
+        name: 'DialAI Backend API',
+        version: '1.0.0',
+        status: 'running',
+        description: 'Multi-channel AI healthcare assistant',
+        endpoints: {
+            health: '/health',
+            call: 'POST /api/call',
+            ussd: 'POST /ussdRoutes',
+            sms: {
+                incoming: 'POST /sms/incoming',
+                delivery: 'POST /sms/delivery'
+            },
+            voice: 'POST /voice'
+        },
+        documentation: 'https://github.com/your-repo/dialai'
+    });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.json({
