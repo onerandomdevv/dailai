@@ -15,13 +15,15 @@ const processAsyncRequest = async (phoneNumber, promptText, contextLabel) => {
     await smsService.sendSMS(
       phoneNumber,
       "DialAI: Processing your request. You'll receive a response shortly.",
+      process.env.SMS_SENDER_ID // Pass Sender ID from .env
     );
 
     // 2. Generate AI response
     const aiResponse = await aiService.generateResponse(promptText);
+    console.log("AI Response Generated:", aiResponse); // Log the AI output for the user to see
 
     // 3. Send final result SMS
-    await smsService.sendSMS(phoneNumber, `${contextLabel}\n${aiResponse}`);
+    await smsService.sendSMS(phoneNumber, `${contextLabel}\n${aiResponse}`, process.env.SMS_SENDER_ID);
   } catch (error) {
     console.error("Error in processAsyncRequest:", error);
     // Optionally send an error SMS to the user if critical
