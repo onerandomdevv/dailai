@@ -1,9 +1,13 @@
 const axios = require('axios');
 const aiService = require('../services/ai.service');
+const interactionTracker = require('../utils/interactionTracker');
 
 exports.handleVoice = async (req, res) => {
     const { isActive, recordingUrl, digits, phoneNumber } = req.body;
     const rateLimiter = require('../utils/rateLimiter');
+
+    // Track this interaction
+    interactionTracker.trackInteraction(phoneNumber, 'VOICE');
 
     console.log(`\n--- [Voice Call Log] ---`);
     console.log(`[Status] Active: ${isActive}, From: ${phoneNumber}`);

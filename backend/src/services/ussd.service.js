@@ -1,5 +1,6 @@
 const smsService = require("./sms.service");
 const aiService = require("./ai.service");
+const conversationContext = require("../utils/conversationContext");
 
 /**
  * Handles the asynchronous process of sending a confirmation SMS,
@@ -11,6 +12,21 @@ const aiService = require("./ai.service");
  */
 const processAsyncRequest = async (phoneNumber, promptText, contextLabel) => {
   try {
+    // Determine service type from context label
+    let service = 'Health';
+    if (contextLabel.includes('Translate')) {
+      service = 'Translator';
+    } else if (contextLabel.includes('Guide')) {
+      service = 'Guide';
+    }
+
+    // Store conversation context for SMS replies
+    conversationContext.set(phoneNumber, {
+      service,
+      lastMessage: promptText,
+      source: 'USSD'
+    });
+
     // 1. Send immediate confirmation SMS
     await smsService.sendSMS(
       phoneNumber,

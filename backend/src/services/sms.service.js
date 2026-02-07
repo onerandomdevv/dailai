@@ -6,6 +6,8 @@ const sendSMS = async (to, message, from = null) => {
     // If 'to' is already an array, use it; otherwise wrap it in an array.
     const recipients = Array.isArray(to) ? to : [to];
 
+    console.log(`[SMS Service] Attempting to send SMS to ${recipients} with sender ID: ${from || 'DEFAULT'}`);
+
     const options = {
       to: recipients,
       message: message,
