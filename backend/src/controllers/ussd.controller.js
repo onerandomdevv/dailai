@@ -8,6 +8,13 @@ const guidePrompt = require("../prompts/guide.prompt");
 exports.handleUSSD = async (req, res) => {
   // Read the variables sent via POST from our API
   const { sessionId, serviceCode, phoneNumber, text } = req.body;
+  const rateLimiter = require("../utils/rateLimiter");
+
+  // Rate Limiting Check (Fraud Prevention)
+  if (!rateLimiter.isAllowed(phoneNumber)) {
+    res.set("Content-Type", "text/plain");
+    return res.send("END Sorry, you have exceeded the daily limit for DialAI. Please try again tomorrow.");
+  }
 
   // Log the full request details (including any potential cost info if sent)
   console.log('Incoming USSD Request:', JSON.stringify(req.body, null, 2));
