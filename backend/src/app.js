@@ -1,11 +1,28 @@
 const express = require('express');
+const cors = require('cors');
 const ussdRoutes = require('./routes/ussd.routes');
 const smsRoutes = require('./routes/sms.routes');
 const { errorHandler, notFoundHandler } = require('./middleware/errorMiddleware');
 
 const app = express();
+
+// CORS configuration - Allow frontend domain
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://*.vercel.app',
+    /^https:\/\/.*\.vercel\.app$/  // Allow all Vercel preview deployments
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
 
 // Root route - API information
 app.get('/', (req, res) => {
