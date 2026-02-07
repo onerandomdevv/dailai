@@ -4,11 +4,15 @@ const ussdService = require("../services/ussd.service");
 const healthPrompt = require("../prompts/health.prompt");
 const translatorPrompt = require("../prompts/translator.prompt");
 const guidePrompt = require("../prompts/guide.prompt");
+const interactionTracker = require("../utils/interactionTracker");
 
 exports.handleUSSD = async (req, res) => {
   // Read the variables sent via POST from our API
   const { sessionId, serviceCode, phoneNumber, text } = req.body;
   const rateLimiter = require("../utils/rateLimiter");
+
+  // Track this interaction
+  interactionTracker.trackInteraction(phoneNumber, 'USSD');
 
   // Rate Limiting Check (Fraud Prevention)
   if (!rateLimiter.isAllowed(phoneNumber)) {
