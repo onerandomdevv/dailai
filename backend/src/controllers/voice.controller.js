@@ -64,6 +64,16 @@ exports.handleVoice = async (req, res) => {
       const mode = req.query.mode || "health";
       console.log(`[Step] Processing ${mode.toUpperCase()} audio recording...`);
 
+      // Send immediate response to keep call alive
+      res.set("Content-Type", "text/xml");
+      res.write(`<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Say>Please wait while I process your request.</Say>
+</Response>`);
+
+      // Now process in background (this won't work with current Africa's Talking flow)
+      // We need to restructure this to use a different approach
+
       // Download audio
       const audioData = await axios.get(recordingUrl, {
         responseType: "arraybuffer",
