@@ -59,22 +59,9 @@ exports.handleVoice = async (req, res) => {
         responseAction = `<Say>Invalid choice. Goodbye.</Say>`;
       }
     }
-    // 3. Process Recording - Step 1: Acknowledge and redirect
-    else if (recordingUrl && !req.query.processing) {
+    // 3. Process Recording - Direct processing (no redirect)
+    else if (recordingUrl) {
       const mode = req.query.mode || "health";
-      console.log(
-        `[Step] Recording received for ${mode}, redirecting to processing...`,
-      );
-
-      // Immediately respond with "please wait" and redirect to processing endpoint
-      responseAction = `
-        <Say>Please wait while I process your request.</Say>
-        <Redirect>https://${req.get("host")}/voice?mode=${mode}&recordingUrl=${encodeURIComponent(recordingUrl)}&processing=true&phoneNumber=${phoneNumber}</Redirect>`;
-    }
-    // 3. Process Recording - Step 2: Actually process the AI request
-    else if (req.query.processing === "true" && req.query.recordingUrl) {
-      const mode = req.query.mode || "health";
-      const recordingUrl = req.query.recordingUrl;
       console.log(`[Step] Processing ${mode.toUpperCase()} audio recording...`);
 
       try {
