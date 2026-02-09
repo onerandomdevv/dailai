@@ -3,7 +3,8 @@ const aiService = require("../services/ai.service");
 const interactionTracker = require("../utils/interactionTracker");
 
 exports.handleVoice = async (req, res) => {
-  const { isActive, recordingUrl, digits, phoneNumber } = req.body;
+  const { isActive, recordingUrl, dtmfDigits, phoneNumber } = req.body;
+  const digits = dtmfDigits; // Africa's Talking sends digits as 'dtmfDigits'
   const rateLimiter = require("../utils/rateLimiter");
 
   // Track this interaction
