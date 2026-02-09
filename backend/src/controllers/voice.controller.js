@@ -48,12 +48,12 @@ exports.handleVoice = async (req, res) => {
         console.log(`[Step] Mode Selected: Health`);
         responseAction = `
                     <Say>Health mode active. Describe your symptoms after the beep.</Say>
-                    <Record maxLength="10" trimSilence="true" playBeep="true" callbackUrl="https://${req.get("host")}/voice?mode=health"/>`;
+                    <Record maxLength="5" trimSilence="true" playBeep="true" callbackUrl="https://${req.get("host")}/voice?mode=health"/>`;
       } else if (digits === "2") {
         console.log(`[Step] Mode Selected: Translation`);
         responseAction = `
                     <Say>Translation mode active. Speak the phrase you want to translate after the beep.</Say>
-                    <Record maxLength="10" trimSilence="true" playBeep="true" callbackUrl="https://${req.get("host")}/voice?mode=translator"/>`;
+                    <Record maxLength="5" trimSilence="true" playBeep="true" callbackUrl="https://${req.get("host")}/voice?mode=translator"/>`;
       } else {
         console.warn(`[Step] Invalid Choice Received: ${digits}`);
         responseAction = `<Say>Invalid choice. Goodbye.</Say>`;
