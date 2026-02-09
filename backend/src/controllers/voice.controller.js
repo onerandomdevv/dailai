@@ -3,17 +3,39 @@ const aiService = require("../services/ai.service");
 const interactionTracker = require("../utils/interactionTracker");
 
 exports.handleVoice = async (req, res) => {
-  const { isActive, recordingUrl, dtmfDigits, phoneNumber } = req.body;
-  const digits = dtmfDigits; // Africa's Talking sends digits as 'dtmfDigits'
+  const {
+    isActive,
+    recordingUrl,
+    dtmfDigits,
+    phoneNumber,
+    callerNumber,
+    destinationNumber,
+    direction,
+  } = req.body;
+  const digits = dtmfDigits;
+
+  // Determine the actual user's phone number based on call direction
+  // For Inbound: User is callerNumber. For Outbound: User is destinationNumber.
+  // Fallback to 'phoneNumber' if available (legacy/SDK).
+  let userNumber = phoneNumber;
+  if (!userNumber) {
+    if (direction === "Outbound") {
+      userNumber = destinationNumber;
+    } else {
+      userNumber = callerNumber;
+    }
+  }
   const rateLimiter = require("../utils/rateLimiter");
 
   // Track this interaction
-  interactionTracker.trackInteraction(phoneNumber, "VOICE");
+  interactionTracker.trackInteraction(userNumber, "VOICE");
 
   console.log(`\n--- [Voice Call Log] ---`);
   console.log(`[DEBUG] Full request body:`, JSON.stringify(req.body, null, 2));
   console.log(`[DEBUG] Query params:`, JSON.stringify(req.query, null, 2));
-  console.log(`[Status] Active: ${isActive}, From: ${phoneNumber}`);
+  console.log(
+    `[Status] Active: ${isActive}, Direction: ${direction || "Inbound"}, User: ${userNumber}`,
+  );
   console.log(`[DEBUG] Digits value:`, digits, `(type: ${typeof digits})`);
   console.log(`[DEBUG] RecordingUrl:`, recordingUrl);
 
@@ -22,8 +44,8 @@ exports.handleVoice = async (req, res) => {
     console.log(`[Audio] Recording URL: ${recordingUrl.substring(0, 50)}...`);
 
   // Rate Limiting Check (Fraud Prevention)
-  if (!rateLimiter.isAllowed(phoneNumber)) {
-    console.warn(`[Blocked] Rate limit exceeded for ${phoneNumber}`);
+  if (!rateLimiter.isAllowed(userNumber)) {
+    console.warn(`[Blocked] Rate limit exceeded for ${userNumber}`);
     res.set("Content-Type", "text/xml");
     return res.send(
       `<?xml version="1.0" encoding="UTF-8"?><Response><Say>Sorry, you have reached your daily limit for DialAI. Goodbye.</Say></Response>`,
@@ -37,7 +59,7 @@ exports.handleVoice = async (req, res) => {
     if ((isActive === "1" || isActive === 1) && !digits) {
       console.log(`[Step] New Call: Showing Main Menu`);
       responseAction = `
-                <GetDigits timeout="10" finishOnKey="#" callbackUrl="https://${req.get("host")}/voice">
+                <GetDigits timeout="10" finishOnKey="#" callbackUrl="${req.protocol}://${req.get("host")}/voice">
                     <Say>Welcome to Dial AI. For Health guidance, press 1. For Translation, press 2.</Say>
                 </GetDigits>
                 <Say>We did not receive any input. Goodbye.</Say>`;
@@ -48,12 +70,12 @@ exports.handleVoice = async (req, res) => {
         console.log(`[Step] Mode Selected: Health`);
         responseAction = `
                     <Say>Health mode active. Describe your symptoms after the beep.</Say>
-                    <Record maxLength="5" trimSilence="true" playBeep="true" callbackUrl="https://${req.get("host")}/voice?mode=health"/>`;
+                    <Record maxLength="5" trimSilence="true" playBeep="true" callbackUrl="${req.protocol}://${req.get("host")}/voice?mode=health"/>`;
       } else if (digits === "2") {
         console.log(`[Step] Mode Selected: Translation`);
         responseAction = `
                     <Say>Translation mode active. Speak the phrase you want to translate after the beep.</Say>
-                    <Record maxLength="5" trimSilence="true" playBeep="true" callbackUrl="https://${req.get("host")}/voice?mode=translator"/>`;
+                    <Record maxLength="5" trimSilence="true" playBeep="true" callbackUrl="${req.protocol}://${req.get("host")}/voice?mode=translator"/>`;
       } else {
         console.warn(`[Step] Invalid Choice Received: ${digits}`);
         responseAction = `<Say>Invalid choice. Goodbye.</Say>`;

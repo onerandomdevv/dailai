@@ -25,9 +25,12 @@ router.post("/call", async (req, res) => {
   }
 
   try {
+    const callbackUrl = `${req.protocol}://${req.get("host")}/voice`;
+
     const options = {
       callFrom: process.env.AT_VOICE_NUMBER || "+2342017000885",
       callTo: [phoneNumber],
+      callbackUrl: callbackUrl,
     };
 
     console.log(`[Outbound Call] Initiating call to ${phoneNumber}`);
