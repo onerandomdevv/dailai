@@ -80,7 +80,7 @@ Initiate an outbound voice call to a phone number.
 **Request Body:**
 ```json
 {
-  "phoneNumber": "+2349135334779"
+  "phoneNumber": "+234XXXXXXXXXX"
 }
 ```
 
@@ -92,10 +92,10 @@ Initiate an outbound voice call to a phone number.
 ```json
 {
   "success": true,
-  "message": "Call initiated to +2349135334779",
+  "message": "Call initiated to +234XXXXXXXXXX",
   "details": {
     "status": "Queued",
-    "phoneNumber": "+2349135334779",
+    "phoneNumber": "+234XXXXXXXXXX",
     "sessionId": "ATVId_..."
   }
 }
@@ -140,7 +140,7 @@ const initiateCall = async (phoneNumber) => {
 {
   "sessionId": "ATUid_...",
   "serviceCode": "*347*157#",
-  "phoneNumber": "+2347013504022",
+  "phoneNumber": "+234XXXXXXXXXX",
   "text": "1*I have a headache"
 }
 ```
@@ -169,7 +169,7 @@ END Request received. Health advice will come via SMS.
 **Request Body (from AT):**
 ```json
 {
-  "from": "+2347013504022",
+  "from": "+234XXXXXXXXXX",
   "text": "I have a headache",
   "to": "12345",
   "date": "2026-02-07 10:30:00",
@@ -205,7 +205,8 @@ END Request received. Health advice will come via SMS.
 {
   "id": "ATXid_...",
   "status": "Success",
-  "phoneNumber": "+2347013504022",
+  "phoneNumber": "+234XXXXXXXXXX",
+  "date": "2026-02-07 10:30:00
   "retryCount": 0
 }
 ```
@@ -222,7 +223,7 @@ END Request received. Health advice will come via SMS.
 {
   "isActive": "1",
   "sessionId": "ATVId_...",
-  "phoneNumber": "+2347013504022",
+  "phoneNumber": "+234XXXXXXXXXX",
   "digits": "1",
   "recordingUrl": "https://..."
 }
@@ -289,7 +290,7 @@ sendSMS(to, message, from) → Promise<result>
 
 **Example:**
 ```javascript
-await sendSMS('+2347013504022', 'Hello from DialAI!', 'ATAlert');
+await sendSMS('+234XXXXXXXXXX', 'Hello from DialAI!', 'ATAlert');
 ```
 
 **Response:**
@@ -299,7 +300,7 @@ await sendSMS('+2347013504022', 'Hello from DialAI!', 'ATAlert');
     "Message": "Sent to 1/1 Total Cost: NGN 0.8000",
     "Recipients": [{
       "statusCode": 101,
-      "number": "+2347013504022",
+      "number": "+234XXXXXXXXXX",
       "status": "Success",
       "cost": "NGN 0.8000",
       "messageId": "ATXid_..."
@@ -395,7 +396,7 @@ getStats() → object
 **Console Output:**
 ```
 📊 [Interaction Tracker] USSD
-   Phone: +2347013504022
+   Phone: +234XXXXXXXXXX
    Count: 3 interactions
    Total unique users: 5
 ```
@@ -571,7 +572,7 @@ const CallButton = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          phoneNumber: '+2349135334779' 
+          phoneNumber: '+234XXXXXXXXXX' 
         })
       });
       const data = await response.json();

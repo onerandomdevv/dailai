@@ -46,7 +46,11 @@ app.get("/", (req, res) => {
     description: "Multi-channel AI healthcare assistant",
     endpoints: {
       health: "/health",
-      call: "POST /api/call",
+      call: {
+        method: "POST",
+        url: "/api/call",
+        body: { phoneNumber: "+234..." },
+      },
       ussd: "POST /ussdRoutes",
       sms: {
         incoming: "POST /sms/incoming",
