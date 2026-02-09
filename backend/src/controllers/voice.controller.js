@@ -59,48 +59,56 @@ exports.handleVoice = async (req, res) => {
         responseAction = `<Say>Invalid choice. Goodbye.</Say>`;
       }
     }
-    // 3. Process Recording
-    else if (recordingUrl) {
+    // 3. Process Recording - Step 1: Acknowledge and redirect
+    else if (recordingUrl && !req.query.processing) {
       const mode = req.query.mode || "health";
+      console.log(
+        `[Step] Recording received for ${mode}, redirecting to processing...`,
+      );
+
+      // Immediately respond with "please wait" and redirect to processing endpoint
+      responseAction = `
+        <Say>Please wait while I process your request.</Say>
+        <Redirect>https://${req.get("host")}/voice?mode=${mode}&recordingUrl=${encodeURIComponent(recordingUrl)}&processing=true&phoneNumber=${phoneNumber}</Redirect>`;
+    }
+    // 3. Process Recording - Step 2: Actually process the AI request
+    else if (req.query.processing === "true" && req.query.recordingUrl) {
+      const mode = req.query.mode || "health";
+      const recordingUrl = req.query.recordingUrl;
       console.log(`[Step] Processing ${mode.toUpperCase()} audio recording...`);
 
-      // Send immediate response to keep call alive
-      res.set("Content-Type", "text/xml");
-      res.write(`<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Say>Please wait while I process your request.</Say>
-</Response>`);
+      try {
+        // Download audio
+        const audioData = await axios.get(recordingUrl, {
+          responseType: "arraybuffer",
+        });
+        const base64Audio = Buffer.from(audioData.data).toString("base64");
+        console.log(`[Audio] Audio downloaded and converted to Base64`);
 
-      // Now process in background (this won't work with current Africa's Talking flow)
-      // We need to restructure this to use a different approach
+        // Select Prompt
+        let promptText =
+          process.env.PROMPT_VOICE ||
+          "You are a helpful assistant. Speak briefly.";
+        if (mode === "translator") {
+          promptText =
+            process.env.PROMPT_VOICE_TRANSLATOR ||
+            "You are a translator. Translate the audio strictly.";
+        }
 
-      // Download audio
-      const audioData = await axios.get(recordingUrl, {
-        responseType: "arraybuffer",
-      });
-      const base64Audio = Buffer.from(audioData.data).toString("base64");
-      console.log(`[Audio] Audio downloaded and converted to Base64`);
+        const parts = [
+          { text: promptText },
+          { inlineData: { mimeType: "audio/mp3", data: base64Audio } },
+        ];
 
-      // Select Prompt
-      let promptText =
-        process.env.PROMPT_VOICE ||
-        "You are a helpful assistant. Speak briefly.";
-      if (mode === "translator") {
-        promptText =
-          process.env.PROMPT_VOICE_TRANSLATOR ||
-          "You are a translator. Translate the audio strictly.";
+        console.log(`[AI] Sending to Google Gemini...`);
+        const aiText = await aiService.generateResponse(parts);
+        console.log(`[AI Response] "${aiText}"`);
+
+        responseAction = `<Say>${aiText}</Say>`;
+      } catch (error) {
+        console.error("[AI Processing Error]", error);
+        responseAction = `<Say>Sorry, I had trouble processing that. Please try again.</Say>`;
       }
-
-      const parts = [
-        { text: promptText },
-        { inlineData: { mimeType: "audio/mp3", data: base64Audio } },
-      ];
-
-      console.log(`[AI] Sending to Google Gemini...`);
-      const aiText = await aiService.generateResponse(parts);
-      console.log(`[AI Response] "${aiText}"`);
-
-      responseAction = `<Say>${aiText}</Say>`;
     }
     // 4. Fallback / Hangup
     else {
