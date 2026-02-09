@@ -12,18 +12,28 @@ export const checkHealth = async () => {
 };
 
 export const initiateCall = async (phoneNumber: string) => {
+  console.log('[API] initiateCall called with:', phoneNumber);
+  console.log('[API] API_URL:', API_URL);
+  
   try {
-    const response = await fetch(`${API_URL}/api/call`, {
+    const url = `${API_URL}/api/call`;
+    console.log('[API] Making POST request to:', url);
+    
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ phoneNumber }),
     });
+    
+    console.log('[API] Response status:', response.status);
     const data = await response.json();
+    console.log('[API] Response data:', data);
+    
     return data;
   } catch (error) {
-    console.error("Call initiation failed:", error);
+    console.error("[API] Call initiation failed:", error);
     return { success: false, error: "Failed to initiate call" };
   }
 };
