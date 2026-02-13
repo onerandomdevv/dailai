@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SubscriptionTier {
+  free
+  pro
+  enterprise
+}
+
+
+model User {
+  id                String         @id @default(uuid())
+  phoneNumber       String         @unique @map("phone_number")
+  preferredLanguage String         @default("en") @map("preferred_language")
+  channelLastUsed   String?        @map("channel_last_used")
+  
+  // Nigeria-ready fields
+  countryCode       String         @default("NG") @map("country_code")
+  countryName       String         @default("Nigeria") @map("country_name")
+  networkProvider   String?        @map("network_provider")
+  
+  // Monetization fields
+  subscriptionTier    SubscriptionTier @default(free) @map("subscription_tier")
+  dailyUsageCount     Int              @default(0) @map("daily_usage_count")
+  lastUsageDate       DateTime?        @map("last_usage_date")
+  dailyVoiceCount     Int              @default(0) @map("daily_voice_count")
+  lastVoiceUsageDate  DateTime?        @map("last_voice_usage_date")
+  
+  createdAt           DateTime         @default(now()) @map("created_at")
+  updatedAt           DateTime         @updatedAt @map("updated_at")
+
+  conversations     Conversation[]
+
+  @@index([phoneNumber])
+  @@index([countryCode])
+  @@index([subscriptionTier])
+  @@map("users")
+}
+
+model Conversation {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  channel     String    // 'voice', 'sms', 'ussd', 'web'
+  status      String    // 'active', 'completed', 'timeout'
+  contextJson Json?     @map("context_json")
+  turnCount   Int       @default(0) @map("turn_count")
+  startedAt   DateTime  @default(now()) @map("started_at")
+  endedAt     DateTime? @map("ended_at")
+
+  user        User      @relation(fields: [userId], references: [id])
+  messages    Message[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("conversations")
+}
+
+model Message {
+  id             String   @id @default(uuid())
+  conversationId String   @map("conversation_id")
+  role           String   // 'user', 'assistant', 'system'
+  inputText      String?  @map("input_text")
+  outputText     String?  @map("output_text")
+  inputType      String   @default("text") @map("input_type") // 'dtmf', 'text', 'speech'
+  latencyMs      Int?     @map("latency_ms")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  @@index([conversationId])
+  @@map("messages")
+}
